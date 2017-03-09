@@ -1,0 +1,96 @@
+<html>
+<head>
+   <title>Sign By JS </title>
+</head>
+<body>
+<br>
+<br><br><br><br><br><br>
+<center>
+txHex :<input id="txHex"  size="50"></br>
+coinType :<input id="coinType" size="50">1:OKD 2:BTC</br> 
+aes256key :<input id="aes256key"  size="50"></br>
+paymentPasswd :<input id="paymentPasswd" size="50"></br>
+salt :<input id="salt"  size="50"></br>
+redeemScript :<input id="redeemScript"   size="50"></br>
+<button type="button" onclick='sign()'>Sign</button>
+</center>
+<p id="aftersign"></p>
+<script type="text/javascript" src="./bitcoinjsok.min.js"></script>
+<script type="text/javascript" src="./Utils.js"></script>
+<script type="text/javascript" src="./jquery-1.11.3.min.js"></script>
+<script type="text/javascript">
+function sign(){
+
+     var txHex = document.getElementById('txHex').value
+	 var coinType = document.getElementById('coinType').value
+	 var aes256key = document.getElementById('aes256key').value
+	 var paymentPasswd = document.getElementById('paymentPasswd').value
+	 var salt = document.getElementById('salt').value
+	 var redeemScript = document.getElementById('redeemScript').value
+	 if(txHex.length==0){
+	    alert("txHex is empty！");
+		return;
+	 }
+	  if(coinType.length==0){
+	    alert("coinType is empty！");
+		return;
+	 }
+	  if(aes256key.length==0){
+	    alert("aes256key is empty！");
+		return;
+	 }
+	  if(paymentPasswd.length==0){
+	    alert("paymentPasswd is empty！");
+		return;
+	 }
+	  if(salt.length==0){
+	    alert("salt is empty！");
+		return;
+	 }
+	 signTools(txHex,coinType,aes256key,paymentPasswd,salt,redeemScript)
+
+}
+//txhex  coinType 1:OKD2:BTCs
+function signTools(txhex,coinType,aes256key,paymentPasswd,salt,redeemScript){
+ 
+    var network = Utils.getNetwork(coinType);
+    var tx = Bitcoin.Transaction.fromHex(txhex)
+    var txBuilder = Bitcoin.TransactionBuilder.fromTransaction(tx, network);
+	
+	var privateKey = decryptPrivateKey(aes256key, paymentPasswd,salt);
+		if(privateKey == undefined || privateKey == null){
+			alert("Error Payment password.");
+			return false;
+		}
+		
+		//设置私钥网络
+		privateKey.network = txBuilder.network;
+        var rs = null;
+		if(redeemScript!=null&&redeemScript!='undefined'&&redeemScript.length>0){
+		    rs = Bitcoin.script.fromHex(redeemScript)
+		}
+		//遍历输入并签名
+		if(coinType == 1){
+		   tx.ins.forEach(function (input,index) {
+			  txBuilder.sign(index, privateKey, rs, null, input.script);
+		   })
+		} else {
+		   tx.ins.forEach(function (input,index) {
+				txBuilder.sign(index, privateKey, rs);
+		   })
+		}
+		if(rs==null){
+		   document.getElementById('aftersign').innerHTML ="RESULT: " +txBuilder.build().toHex();
+		}else{
+		   document.getElementById('aftersign').innerHTML ="RESULT: " +txBuilder.buildIncomplete().toHex();
+		}
+		
+	
+	
+}
+</script>
+
+</body>
+</html>
+
+
