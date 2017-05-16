@@ -1,0 +1,25 @@
+Run SignTools by Node.js
+
+Step 1:
+       install node.js
+Step 2:
+      mkdir myapp
+      cp bitcoinjsok.min.js   server.js myapp
+Step 3:
+      npm  init
+      npm install express --save
+      npm install body-parser
+Step 4:
+     node server.js  
+     http://127.0.0.1:8080/sign  is running
+Step 5:
+     make a call  http://127.0.0.1:8080/sign  
+     
+     Http Mothed: Post
+     Request Parameters:
+        txHex : String , required
+        coinType: Integer ,required   1:OKD 2:BTC
+        aes256key:String .required  
+        salt:String required
+        paymentPasswd:String required
+        redeemScript:String opthion
